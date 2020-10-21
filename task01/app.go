@@ -25,15 +25,16 @@ func health(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("{\"status\": \"OK\"}"))
 }
 
-func some(w http.ResponseWriter, r *http.Request) {
+func root(w http.ResponseWriter, r *http.Request) {
+	log.Printf("[ROOT HANDLER] request: %v %v", r.Method, r.URL)
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("some handler"))
+	w.Write([]byte("root"))
 }
 
 func newServer(address string) *http.Server {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/some", some)
 	mux.HandleFunc("/healthz/", health)
+	mux.HandleFunc("/", root)
 	return &http.Server{Addr: address, Handler: mux}
 }
 

@@ -1,0 +1,143 @@
+{
+	"info": {
+		"_postman_id": "2b0bc3b1-10c0-468b-9022-b21884413e97",
+		"name": "simple-app",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "healthz",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1049796b-e70c-4ec8-a3cf-f215f625a323",
+						"exec": [
+							"pm.test(\"status test\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"body test\", function() {",
+							"    pm.response.to.have.jsonBody({\"status\": \"OK\"});",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Host",
+						"value": "{{host}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://{{baseUrl}}/otusapp/pavel/healthz/",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"otusapp",
+						"pavel",
+						"healthz",
+						""
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "healthz",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Host",
+								"value": "{{host}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://{{baseUrl}}/otusapp/pavel/healthz/",
+							"protocol": "http",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"otusapp",
+								"pavel",
+								"healthz",
+								""
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Server",
+							"value": "nginx/1.19.1"
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 21 Oct 2020 15:57:09 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						},
+						{
+							"key": "Content-Length",
+							"value": "16"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"body": "{\"status\": \"OK\"}"
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "b419fb92-5c12-4a27-95bd-08cef0a60b4d",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "d1af7744-0f61-4cfa-814e-b4bd35f8f48c",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "db32bf50-f4a1-423e-b74c-8d411c8b9d52",
+			"key": "baseUrl",
+			"value": "192.168.39.78"
+		},
+		{
+			"id": "bb8488c2-b3a4-4bc3-8d10-8dca0aeb1a45",
+			"key": "host",
+			"value": "arch.homework"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

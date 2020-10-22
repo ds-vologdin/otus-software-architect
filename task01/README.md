@@ -37,6 +37,8 @@ cd k8s
 kubectl apply -f .
 ```
 ### Check the deploy
+
+Check pods
 ```bash
 kubectl get pod
 ```
@@ -46,15 +48,19 @@ NAME                          READY   STATUS    RESTARTS   AGE
 simple-app-6f55cc9c7c-8qnnw   1/1     Running   0          19m
 simple-app-6f55cc9c7c-ppvs8   1/1     Running   0          20m
 ```
+
+Check services
 ```bash
 kubectl get svc
 ```
 Output
 ```
-bud@bud-notebook:~/go/src/github.com/ds-vologdin/otus-software-architect/task01/k8s$ kubectl get svc
+kubectl get svc
 NAME         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
 simple-app   ClusterIP   10.97.27.163   <none>        8000/TCP   19h
 ```
+
+Check ingress
 ```bash
 kubectl get ingress
 ```

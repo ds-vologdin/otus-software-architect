@@ -128,13 +128,33 @@ func (srv *Server) deleteUser(w http.ResponseWriter, r *http.Request) {
 func (srv *Server) editUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	log.Printf("[EDIT USER] request: %v %v [%v]", r.Method, r.URL, vars)
+
+	id, err := users.UserIDFromString(vars["id"])
+	if err != nil {
+		log.Printf("invalid id: %v", err)
+		w.WriteHeader(http.StatusNotFound)
+		w.Write(MsgInvalidUserID)
+		return
+	}
+
 	var user users.User
-	err := json.NewDecoder(r.Body).Decode(&user)
+	err = json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		log.Printf("user format error: %v", err)
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(MsgInvalidDataFormat)
 		return
+	}
+
+	if user.ID == 0 {
+		user.ID = id
+	} else {
+		if user.ID != id {
+			log.Printf("user id from json != user id from url (%v != %v)", user.ID, id)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(MsgInvalidUserID)
+			return
+		}
 	}
 
 	err = srv.UserService.Edit(user)

@@ -84,3 +84,8 @@ postgresql:
     port: 5432
   options: "sslmode=disable"
 
+migrations:
+  image:
+    repository: dsvologdin/migrate-account
+    tag: "0.0.2"
+    pullPolicy: IfNotPresent

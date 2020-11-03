@@ -59,7 +59,7 @@ statefulset.apps/accounts-postgresql   1/1     3h18m
 
 ```
 
-# Postmat
+# Postman
 
 You can use postman collection for test endpoints.
 Before that, you should set the arch.homework IP address in `/etc/hosts`.

@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/ds-vologdin/otus-software-architect/task02/users"
 )
@@ -186,6 +187,8 @@ func NewServer(address string, userService users.UserService) (*Server, error) {
 	r.HandleFunc("/user/{id}", s.getUser).Methods("GET")
 	r.HandleFunc("/user/{id}", s.deleteUser).Methods("DELETE")
 	r.HandleFunc("/user/{id}", s.editUser).Methods("PUT")
+	r.Handle("/metrics", promhttp.Handler())
+	r.Use(metricsMiddleware)
 	r.Use(headerMiddleware)
 	s.SVC = &http.Server{Addr: address, Handler: r}
 

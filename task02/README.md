@@ -3,10 +3,10 @@
 ## Build the accounts app
 
 ```bash
-docker build -t dsvologdin/accounts:0.0.2 .
+docker build -t dsvologdin/accounts:0.0.3 .
 docker build -t dsvologdin/migrate-account:0.0.2 .
 docker login
-docker push dsvologdin/accounts:0.0.2
+docker push dsvologdin/accounts:0.0.3
 docker push dsvologdin/migrate-account:0.0.2
 ```
 
@@ -19,12 +19,12 @@ minikube addons enable ingress
 
 Deploy the app
 ```bash
-helm install accounts helm/accounts
+helm install accounts helm/accounts --atomic
 ```
 
 Upgrade the app
 ```bash
-helm install accounts helm/accounts
+helm upgrade accounts helm/accounts --atomic
 ```
 
 If you don't want to deploy the chart to the default namespace, you can use flag `-n your_namespace`.
@@ -120,4 +120,16 @@ Output
 │ average response time: 34ms [min: 7ms, max: 111ms, s.d.: 36ms] │
 └────────────────────────────────────────────────────────────────┘
 
+```
+
+# Prometheus
+
+## Install
+
+```bash
+minikube addons disable ingress
+
+helm install prom stable/prometheus-operator -f prometheus.yaml --atomic
+
+helm install nginx stable/nginx-ingress -f helm/nginx-ingress/values.yaml --atomic
 ```

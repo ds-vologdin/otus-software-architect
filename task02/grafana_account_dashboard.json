@@ -613,7 +613,7 @@
         "steppedLine": false,
         "targets": [
           {
-            "expr": "sum(rate(accounts_request_count{http_status=\"500\"}[1m]))",
+            "expr": "sum by (http_status) (rate(accounts_request_count[1m]))",
             "interval": "",
             "legendFormat": "",
             "refId": "A"
@@ -631,7 +631,7 @@
         "timeFrom": null,
         "timeRegions": [],
         "timeShift": null,
-        "title": "Rate of 500 errors",
+        "title": "RPS by statuses",
         "tooltip": {
           "shared": true,
           "sort": 0,
@@ -1029,5 +1029,5 @@
     "timezone": "",
     "title": "Accounts service",
     "uid": "ICukiEhMk",
-    "version": 6
+    "version": 7
   }

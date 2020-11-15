@@ -1,0 +1,37 @@
+version: "3.8"
+services:
+  app:
+    build: .
+    command: ["-config", "/app/app-test.yaml"]
+    depends_on:
+      - db
+      - migrations
+    ports:
+      - 8000:8000
+    volumes:
+      - ./:/app/
+
+  migrations:
+    build:
+      context: ./migrations
+    command: [
+      "db:5432", "--",
+      "migrate", "-path", "/migrations/",
+      "-database", "postgres://tom:tom@db:5432/tom?sslmode=disable", "up"
+    ]
+    depends_on:
+      - db
+
+  db:
+    image: postgres:12.4-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=tom
+      - POSTGRES_PASSWORD=tom
+      - POSTGRES_DB=tom
+    ports:
+      - 5432:5432
+
+volumes:
+  postgres_data:

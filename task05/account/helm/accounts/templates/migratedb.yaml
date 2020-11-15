@@ -1,0 +1,39 @@
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "app.fullname" . }}-migrations
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      name: {{ include "app.fullname" . }}-migrations
+      labels:
+        {{- include "app.labels" . | nindent 8 }}
+    spec:
+      restartPolicy: Never
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: account-migrations-job
+        image: {{ .Values.migrations.image.repository }}:{{ .Values.migrations.image.tag }}
+        imagePullPolicy: {{ .Values.migrations.image.pullPolicy }}
+        args:
+          - "{{ .Values.postgresql.host }}:{{ .Values.postgresql.service.port }}"
+          - "--"
+          - "migrate"
+          - "-path"
+          - "/migrations/"
+          - "-database"
+          - {{ printf "postgresql://%s:%s@%s:%.0f/%s?%s" .Values.postgresql.postgresqlUsername .Values.postgresql.postgresqlPassword .Values.postgresql.host .Values.postgresql.service.port .Values.postgresql.postgresqlDatabase .Values.postgresql.options | quote }}
+          - "up"
+  backoffLimit: 0

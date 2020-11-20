@@ -42,7 +42,7 @@ func NewUserService(dsn string) (users.UserService, error) {
 func (svc *service) Get(id users.UserID) (users.User, error) {
 	user := users.User{}
 	err := svc.db.Get(&user, `
-		SELECT username, first_name, last_name, email, phone
+		SELECT id, username, first_name, last_name, email, phone
 		FROM "user" WHERE id=$1;`,
 		id,
 	)
@@ -52,17 +52,22 @@ func (svc *service) Get(id users.UserID) (users.User, error) {
 	return user, err
 }
 
-func (svc *service) CheckPassword(id users.UserID, password string) (bool, error) {
-	var gotHashPassword string
-	err := svc.db.Get(&gotHashPassword, `SELECT password FROM "user" WHERE id=$1;`, id)
+func (svc *service) CheckCredential(username, password string) (users.UserID, error) {
+	user := struct {
+		ID       users.UserID
+		Password string
+	}{}
+	err := svc.db.Get(&user, `SELECT id, password FROM "user" WHERE username=$1;`, username)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return false, fmt.Errorf("get user %v: %w", id, users.UserNotFound)
+			return 0, fmt.Errorf("check credential for %v: %w", username, users.UserNotFound)
 		}
-		return false, err
-
+		return 0, users.ErrUserGet
 	}
-	return gotHashPassword == HashString(password), nil
+	if user.Password != HashString(password) {
+		return 0, users.ErrInvalidPassword
+	}
+	return user.ID, nil
 }
 
 func (svc *service) Create(user users.User) (users.UserID, error) {

@@ -12,6 +12,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
+	"github.com/ds-vologdin/otus-software-architect/task05/account/server/handlers/auth"
 	"github.com/ds-vologdin/otus-software-architect/task05/account/server/handlers/profile"
 	"github.com/ds-vologdin/otus-software-architect/task05/account/users"
 )
@@ -27,6 +28,7 @@ type Server struct {
 }
 
 // Handlers
+
 func health(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(MsgStatusOK)
@@ -44,6 +46,7 @@ func NewServer(address string, userService users.UserService) (*Server, error) {
 	r.Handle("/metrics", promhttp.Handler())
 
 	profile.RegisterSubrouter(r, "/profile", userService)
+	auth.RegisterSubrouter(r, "/auth", userService)
 
 	r.Use(metricsMiddleware, headerMiddleware)
 	s.SVC = &http.Server{Addr: address, Handler: r}

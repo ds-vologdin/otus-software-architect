@@ -133,3 +133,11 @@ helm install prom stable/prometheus-operator -f prometheus.yaml --atomic
 
 helm install nginx stable/nginx-ingress -f helm/nginx-ingress/values.yaml --atomic
 ```
+
+
+# Create refresh token
+
+```bash
+curl -v -X POST -d "{\"Username\":\"tom\",\"Password\":\"password\"}" POST http://127.0.0.1:8000/token/refresh
+curl -v -H "Authorization: Basic tom:password" http://127.0.0.1:8000/auth
+```

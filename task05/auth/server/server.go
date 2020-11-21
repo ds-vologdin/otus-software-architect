@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -12,6 +13,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
+	"github.com/ds-vologdin/otus-software-architect/task05/auth/config"
 	"github.com/ds-vologdin/otus-software-architect/task05/auth/providers/account"
 	"github.com/ds-vologdin/otus-software-architect/task05/auth/server/handlers/token"
 )
@@ -35,7 +37,7 @@ func health(w http.ResponseWriter, r *http.Request) {
 // End handlers
 
 // NewServer - initialize the http server
-func NewServer(address string, accountProvider account.AccountProvider) (*Server, error) {
+func NewServer(cfg config.Config, accountProvider account.AccountProvider) (*Server, error) {
 	s := Server{}
 	s.AccountProvider = accountProvider
 
@@ -43,9 +45,14 @@ func NewServer(address string, accountProvider account.AccountProvider) (*Server
 	r.HandleFunc("/healthz", health)
 	r.Handle("/metrics", promhttp.Handler())
 
-	token.RegisterSubrouter(r, "/token", accountProvider)
+	err := token.RegisterSubrouter(r, "/token", accountProvider, cfg.JWT)
+	if err != nil {
+		log.Printf("register token router: %v", err)
+		return nil, err
+	}
 
 	r.Use(metricsMiddleware, headerMiddleware)
+	address := fmt.Sprintf(":%d", cfg.Server.Port)
 	s.SVC = &http.Server{Addr: address, Handler: r}
 
 	return &s, nil

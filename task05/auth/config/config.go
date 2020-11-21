@@ -9,10 +9,19 @@ import (
 
 // Config of auth service
 type Config struct {
-	Server struct {
-		Port int `yaml:"port"`
-	} `yaml:"server"`
+	Server         ServerConfig         `yaml:"server"`
 	AccountService AccountServiceConfig `yaml:"AccountService"`
+	JWT            JWTConfig            `yaml:"jwt"`
+}
+
+type ServerConfig struct {
+	Port int `yaml:"port"`
+}
+
+type JWTConfig struct {
+	Algorithm  string `yaml:"algorithm"`
+	PrivateKey string `yaml:"privateKey"`
+	PublicKey  string `yaml:"publicKey"`
 }
 
 type AccountServiceConfig struct {

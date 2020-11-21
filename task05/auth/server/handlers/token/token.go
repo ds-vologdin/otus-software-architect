@@ -1,6 +1,9 @@
 package token
 
 import (
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,14 +13,13 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-
-	"github.com/ds-vologdin/otus-software-architect/task05/auth/providers/account"
 	"github.com/gorilla/mux"
+
+	"github.com/ds-vologdin/otus-software-architect/task05/auth/config"
+	"github.com/ds-vologdin/otus-software-architect/task05/auth/providers/account"
 )
 
 const (
-	secret = "secret-token"
-
 	TokenTypeRefresh = "refresh"
 	TokenTypeAccess  = "access"
 
@@ -32,6 +34,8 @@ var (
 
 type server struct {
 	AccountProvider account.AccountProvider
+	PrivateKey      *rsa.PrivateKey
+	PublicKey       *rsa.PublicKey
 }
 
 type Credential struct {
@@ -71,7 +75,7 @@ func (s *server) createRefreshToken(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("user id: %v", userID)
 
-	refreshToken, err := createToken(secret, userID.String(), TokenTypeRefresh, TokenTypeRefreshTTL)
+	refreshToken, err := createToken(s.PrivateKey, userID.String(), TokenTypeRefresh, TokenTypeRefreshTTL)
 	if err != nil {
 		log.Printf("create refresh token error: %v", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -79,7 +83,7 @@ func (s *server) createRefreshToken(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("refreshToken: %v", refreshToken)
 
-	accessToken, err := createToken(secret, userID.String(), TokenTypeAccess, TokenTypeAccessTTL)
+	accessToken, err := createToken(s.PrivateKey, userID.String(), TokenTypeAccess, TokenTypeAccessTTL)
 	if err != nil {
 		log.Printf("create access token error: %v", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -112,7 +116,7 @@ func (s *server) createAccessToken(w http.ResponseWriter, r *http.Request) {
 		refreshTokenString = refreshTokenString[7:]
 	}
 
-	refreshToken, err := parseToken(secret, refreshTokenString)
+	refreshToken, err := parseToken(s.PublicKey, refreshTokenString)
 	if err != nil {
 		log.Printf("invalid refresh token: %v", err)
 		w.WriteHeader(http.StatusForbidden)
@@ -124,7 +128,7 @@ func (s *server) createAccessToken(w http.ResponseWriter, r *http.Request) {
 		w.Write(MsgInvalidRefreshToken)
 	}
 
-	accessToken, err := newAccessToken(secret, refreshToken)
+	accessToken, err := newAccessToken(s.PrivateKey, refreshToken)
 	if err != nil {
 		log.Printf("create access token error: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -144,9 +148,30 @@ func (s *server) createAccessToken(w http.ResponseWriter, r *http.Request) {
 }
 
 // RegisterSubrouter register subrouter for work with token of user
-func RegisterSubrouter(base *mux.Router, path string, accountProvider account.AccountProvider) error {
+func RegisterSubrouter(base *mux.Router, path string, accountProvider account.AccountProvider, cfg config.JWTConfig) error {
+	if cfg.Algorithm != "RS256" {
+		return fmt.Errorf("unsupport jwt algorithm '%s', support only RS256", cfg.Algorithm)
+	}
+	privateKeyRaw, err := base64.StdEncoding.DecodeString(cfg.PrivateKey)
+	if err != nil {
+		log.Printf("invalid jwt private key: %v", err)
+		return err
+	}
+	privateKey, err := x509.ParsePKCS1PrivateKey(privateKeyRaw)
+	if err != nil {
+		log.Printf("invalid jwt private key: %v", err)
+		return err
+	}
+
+	if isInvalidPublicKey(privateKey, cfg.PublicKey) {
+		log.Printf("invalid jwt public key")
+		return errors.New("invalid public key")
+	}
+
 	s := server{
 		AccountProvider: accountProvider,
+		PrivateKey:      privateKey,
+		PublicKey:       &privateKey.PublicKey,
 	}
 	r := base.PathPrefix(path).Subrouter()
 	r.HandleFunc("/refresh", s.createRefreshToken).Methods("POST")
@@ -154,25 +179,25 @@ func RegisterSubrouter(base *mux.Router, path string, accountProvider account.Ac
 	return nil
 }
 
-func createToken(secret, uid, tokenType string, period time.Duration) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+func createToken(privateKey *rsa.PrivateKey, uid, tokenType string, period time.Duration) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{
 		"uid":  uid,
 		"type": tokenType,
 		"exp":  time.Now().Add(period).Unix(),
 	})
-	return token.SignedString([]byte(secret))
+	return token.SignedString(privateKey)
 }
 
-func newAccessToken(secret string, refreshToken ParsedToken) (string, error) {
-	return createToken(secret, refreshToken.UID, TokenTypeAccess, TokenTypeAccessTTL)
+func newAccessToken(privateKey *rsa.PrivateKey, refreshToken ParsedToken) (string, error) {
+	return createToken(privateKey, refreshToken.UID, TokenTypeAccess, TokenTypeAccessTTL)
 }
 
-func parseToken(secret, tokenString string) (ParsedToken, error) {
+func parseToken(publicKey *rsa.PublicKey, tokenString string) (ParsedToken, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(secret), nil
+		return publicKey, nil
 	})
 
 	parsedToken := ParsedToken{}
@@ -240,4 +265,10 @@ func getCredentialsFromAuthorization(r *http.Request) (Credential, error) {
 	cred.Username = splited[0]
 	cred.Password = splited[1]
 	return cred, nil
+}
+
+func isInvalidPublicKey(privateKey *rsa.PrivateKey, gotPublicKey string) bool {
+	publicKeyRaw := x509.MarshalPKCS1PublicKey(&privateKey.PublicKey)
+	publicKey := base64.StdEncoding.EncodeToString(publicKeyRaw)
+	return publicKey != gotPublicKey
 }

@@ -8,7 +8,7 @@ ADD go.sum .
 RUN go mod download
 
 ADD . /app/
-RUN CGO_ENABLED=0 GOOS=linux go build -o app ./cmd/
+RUN CGO_ENABLED=0 GOOS=linux go build -o app ./cmd/auth/
 
 FROM scratch
 

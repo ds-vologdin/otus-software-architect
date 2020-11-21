@@ -22,15 +22,15 @@ var (
 func main() {
 	flag.Parse()
 
-	conf, err := config.ReadConfig(*configFile)
+	cfg, err := config.ReadConfig(*configFile)
 	if err != nil {
 		log.Fatalf("read config: %v", err)
 	}
 
-	accountProvider := account.NewAccountProvider(conf.AccountService)
+	accountProvider := account.NewAccountProvider(cfg.AccountService)
 
-	address := fmt.Sprintf(":%d", conf.Server.Port)
-	srv, err := server.NewServer(address, accountProvider)
+	address := fmt.Sprintf(":%d", cfg.Server.Port)
+	srv, err := server.NewServer(cfg, accountProvider)
 	if err != nil {
 		log.Fatalf("Init HTTP server: %v", err)
 	}

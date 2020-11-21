@@ -1,19 +1,31 @@
 version: "3.8"
 services:
-  app:
-    build: .
+  account:
+    build:
+      context: ./account
     command: ["-config", "/app/app-test.yaml"]
     depends_on:
       - db
-      - migrations
+      - account-migrations
     ports:
       - 8000:8000
     volumes:
-      - ./:/app/
+      - ./account/:/app/
 
-  migrations:
+  auth:
     build:
-      context: ./migrations
+      context: ./auth
+    command: ["-config", "/app/app-test.yaml"]
+    depends_on:
+      - account
+    ports:
+      - 8001:8001
+    volumes:
+      - ./auth/:/app/
+
+  account-migrations:
+    build:
+      context: ./account/migrations
     command: [
       "db:5432", "--",
       "migrate", "-path", "/migrations/",

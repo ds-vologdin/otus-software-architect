@@ -1,0 +1,5 @@
+server:
+  port: 8001
+
+AccountService:
+  url: http://account:8000/auth

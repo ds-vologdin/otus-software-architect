@@ -8,7 +8,7 @@ image:
   repository: dsvologdin/accounts
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.0.5"
+  tag: "0.0.6"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -45,7 +45,7 @@ ingress:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
   host: arch.homework
-  path: /otusapp(/|$)(.*)
+  path: /accounts(/|$)(.*)
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
@@ -87,7 +87,7 @@ postgresql:
 migrations:
   image:
     repository: dsvologdin/migrate-account
-    tag: "0.0.2"
+    tag: "0.0.4"
     pullPolicy: IfNotPresent
 
 metrics:

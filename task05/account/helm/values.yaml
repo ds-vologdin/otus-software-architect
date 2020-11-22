@@ -90,6 +90,18 @@ migrations:
     tag: "0.0.4"
     pullPolicy: IfNotPresent
 
+authSidecar:
+  image:
+    repository: dsvologdin/auth-sidecar
+    pullPolicy: IfNotPresent
+    tag: "0.0.1"
+  server:
+    port: 8002
+  jwt:
+    algorithm: RS256
+    publicKey: MIIBCgKCAQEA3yPP0lVEdMzLLYY8X9dFVlELKu8gHPwK1dOHRNMmzGl3cQTwrgnTy9Bw43RRPsAym7LWTrIbyos85OzJJa1FcmZYHlC88CSon+R1xmzpKlJSOrEc+oGCQ5iMX3Q8GMuUkO21x8ywfoMkNmm/ZwWvYZ+YE8hQQwOA9mJ2jQfamqnhQm5TWU66h62ESIv652ILrghmUkh8k62lWiSHykJVpqDCYr0AbsdeqRqdIDzjK9QNdI065nXFCrvEV17eDi40YwUG1VFd+ATO8HwHow5TkOd6PDJRi5H3hErjkMDN2OUoCBZsQ6FAMdoOf816GgkKwkLhAqwYnXwenYzDjdAblwIDAQAB
+
+
 metrics:
   serviceMonitor:
     enabled: true

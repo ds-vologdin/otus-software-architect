@@ -73,7 +73,7 @@ func (p proxyServer) Proxy(w http.ResponseWriter, r *http.Request) {
 
 	copyHeader(req.Header, r.Header)
 	if userID != "" {
-		req.Header.Add("X-User-Id", userID)
+		req.Header.Set("X-User-Id", userID)
 	}
 
 	resp, err := client.Do(req)
@@ -210,7 +210,7 @@ func authorizeError(w http.ResponseWriter) {
 func copyHeader(dst, src http.Header) {
 	for k, vv := range src {
 		for _, v := range vv {
-			dst.Add(k, v)
+			dst.Set(k, v)
 		}
 	}
 }

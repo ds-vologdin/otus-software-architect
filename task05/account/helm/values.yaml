@@ -94,7 +94,7 @@ authSidecar:
   image:
     repository: dsvologdin/auth-sidecar
     pullPolicy: IfNotPresent
-    tag: "0.0.1"
+    tag: "0.0.2"
   server:
     port: 8002
   jwt:

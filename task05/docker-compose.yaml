@@ -12,6 +12,17 @@ services:
     volumes:
       - ./account/:/app/
 
+  auth-sidecar:
+    build:
+      context: ./auth-sidecar
+    command: ["-config", "/app/app-test.yaml"]
+    depends_on:
+      - account
+    ports:
+      - 8002:8002
+    volumes:
+      - ./auth-sidecar/:/app/
+
   auth:
     build:
       context: ./auth

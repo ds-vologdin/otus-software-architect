@@ -18,6 +18,13 @@ func (srv *server) getProfile(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	log.Printf("[GET USER] request: %v %v [%v]", r.Method, r.URL, vars)
 
+	xUserID := r.Header.Get("X-User-Id")
+	if xUserID != vars["id"] {
+		log.Printf("X-User-Id invalid: %v != %v", xUserID, vars["id"])
+		http.Error(w, "forbidden", http.StatusForbidden)
+		return
+	}
+
 	id, err := users.UserIDFromString(vars["id"])
 	if err != nil {
 		log.Printf("invalid id: %v", err)
@@ -84,6 +91,13 @@ func (srv *server) deleteUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	log.Printf("[DELETE USER] request: %v %v [%v]", r.Method, r.URL, vars)
 
+	xUserID := r.Header.Get("X-User-Id")
+	if xUserID != vars["id"] {
+		log.Printf("X-User-Id invalid: %v != %v", xUserID, vars["id"])
+		http.Error(w, "forbidden", http.StatusForbidden)
+		return
+	}
+
 	id, err := users.UserIDFromString(vars["id"])
 	if err != nil {
 		log.Printf("invalid id: %v", err)
@@ -110,6 +124,13 @@ func (srv *server) deleteUser(w http.ResponseWriter, r *http.Request) {
 func (srv *server) editProfile(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	log.Printf("[EDIT USER] request: %v %v [%v]", r.Method, r.URL, vars)
+
+	xUserID := r.Header.Get("X-User-Id")
+	if xUserID != vars["id"] {
+		log.Printf("X-User-Id invalid: %v != %v", xUserID, vars["id"])
+		http.Error(w, "forbidden", http.StatusForbidden)
+		return
+	}
 
 	id, err := users.UserIDFromString(vars["id"])
 	if err != nil {

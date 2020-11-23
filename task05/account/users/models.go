@@ -12,7 +12,7 @@ type UserID int64
 type User struct {
 	ID        UserID `db:"id"`
 	Username  string `db:"username"`
-	Password  string `db:"password" json:"-"`
+	Password  string `db:"password"`
 	FirstName string `db:"first_name"`
 	LastName  string `db:"last_name"`
 	Email     string `db:"email"`

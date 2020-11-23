@@ -6,5 +6,6 @@ type UserService interface {
 	CheckCredential(string, string) (UserID, error)
 	Create(User) (UserID, error)
 	Edit(User) error
+	Update(User) error
 	Delete(UserID) error
 }

@@ -63,16 +63,18 @@ func (srv *server) createUser(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		log.Printf("user format error: %v", err)
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(MsgInvalidDataFormat)
+		http.Error(w, "invalid data format", http.StatusBadRequest)
 		return
 	}
 
 	id, err := srv.UserService.Create(user)
 	if err != nil {
 		log.Printf("create user error: %v", err)
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(MsgCreateUserError)
+		if errors.Is(err, users.ErrUserExists) {
+			http.Error(w, "user already exists", http.StatusConflict)
+		} else {
+			http.Error(w, "internal error", http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -81,8 +83,7 @@ func (srv *server) createUser(w http.ResponseWriter, r *http.Request) {
 	err = encoder.Encode(struct{ ID users.UserID }{id})
 	if err != nil {
 		log.Printf("encode to json error: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(MsgInternalError)
+		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 }
@@ -135,17 +136,14 @@ func (srv *server) editProfile(w http.ResponseWriter, r *http.Request) {
 	id, err := users.UserIDFromString(vars["id"])
 	if err != nil {
 		log.Printf("invalid id: %v", err)
-		w.WriteHeader(http.StatusNotFound)
-		w.Write(MsgInvalidUserID)
+		http.Error(w, "invalid user id", http.StatusNotFound)
 		return
 	}
 
 	var user users.User
 	err = json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		log.Printf("user format error: %v", err)
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(MsgInvalidDataFormat)
+		http.Error(w, "invalid data format", http.StatusBadRequest)
 		return
 	}
 
@@ -154,8 +152,7 @@ func (srv *server) editProfile(w http.ResponseWriter, r *http.Request) {
 	} else {
 		if user.ID != id {
 			log.Printf("user id from json != user id from url (%v != %v)", user.ID, id)
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write(MsgInvalidUserID)
+			http.Error(w, "invalid user id", http.StatusBadRequest)
 			return
 		}
 	}
@@ -164,11 +161,59 @@ func (srv *server) editProfile(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("edit user error: %v", err)
 		if errors.Is(err, users.UserNotFound) {
-			w.WriteHeader(http.StatusNotFound)
-			w.Write(MsgUserNotFound)
+			http.Error(w, "user not found", http.StatusNotFound)
 		} else {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write(MsgEditUserError)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+		}
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write(MsgStatusOK)
+}
+
+func (srv *server) updateProfile(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	log.Printf("[PATCH USER] request: %v %v [%v]", r.Method, r.URL, vars)
+
+	xUserID := r.Header.Get("X-User-Id")
+	if xUserID != vars["id"] {
+		log.Printf("X-User-Id invalid: %v != %v", xUserID, vars["id"])
+		http.Error(w, "forbidden", http.StatusForbidden)
+		return
+	}
+
+	id, err := users.UserIDFromString(vars["id"])
+	if err != nil {
+		log.Printf("invalid id: %v", err)
+		http.Error(w, "invalid user id", http.StatusNotFound)
+		return
+	}
+
+	var user users.User
+	err = json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		log.Printf("user format error: %v", err)
+		http.Error(w, "invalid data format", http.StatusBadRequest)
+		return
+	}
+
+	if user.ID == 0 {
+		user.ID = id
+	} else {
+		if user.ID != id {
+			log.Printf("user id from json != user id from url (%v != %v)", user.ID, id)
+			http.Error(w, "invalid user id", http.StatusBadRequest)
+			return
+		}
+	}
+
+	err = srv.UserService.Update(user)
+	if err != nil {
+		log.Printf("update user error: %v", err)
+		if errors.Is(err, users.UserNotFound) {
+			http.Error(w, "user not found", http.StatusNotFound)
+		} else {
+			http.Error(w, "internal error", http.StatusInternalServerError)
 		}
 		return
 	}
@@ -183,6 +228,7 @@ func RegisterSubrouter(base *mux.Router, path string, userService users.UserServ
 	r.HandleFunc("/", s.createUser).Methods("POST")
 	r.HandleFunc("/{id}", s.getProfile).Methods("GET")
 	r.HandleFunc("/{id}", s.deleteUser).Methods("DELETE")
-	r.HandleFunc("/{id}", s.editProfile).Methods("PUT")
+	r.HandleFunc("/{id}", s.editProfile).Methods("PATCH")
+	r.HandleFunc("/{id}", s.updateProfile).Methods("POST")
 	return nil
 }

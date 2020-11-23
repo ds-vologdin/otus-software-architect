@@ -132,8 +132,8 @@ func (svc *service) Edit(user users.User) error {
 
 	r, err := tx.Exec(`
 		UPDATE "user"
-		SET first_name=$2, last_name=$3, email=$4, phone=$5
-		WHERE id=$6;`,
+		SET first_name=$1, last_name=$2, email=$3, phone=$4
+		WHERE id=$5;`,
 		user.FirstName, user.LastName, user.Email, user.Phone, user.ID,
 	)
 	if err != nil {

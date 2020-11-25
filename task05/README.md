@@ -148,3 +148,8 @@ Refresh token provides create a new access token. The request must have an Autho
 
 Access tokens provide access to other services.
 
+## Scheme of services
+
+![Account service](https://github.com/ds-vologdin/otus-software-architect/blob/main/task05/img/account%20service.jpg)
+![Create refresh and access tokens](https://github.com/ds-vologdin/otus-software-architect/blob/main/task05/img/create%20tokens.jpg)
+![Refresh access token](https://github.com/ds-vologdin/otus-software-architect/blob/main/task05/img/refresh%20access%20token.jpg)

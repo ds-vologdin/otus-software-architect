@@ -128,7 +128,7 @@ func isNeedAuth(exclude []config.Request, r *http.Request) bool {
 func NewProxy(cfg config.Config) (proxyServer, error) {
 	p := proxyServer{}
 	if cfg.JWT.Algorithm != "RS256" {
-		return p, fmt.Errorf("unsupport jwt algorithm '%s', support only RS256", cfg.JWT.Algorithm)
+		return p, fmt.Errorf("'%s' is not supported jwt algorithm, support only RS256", cfg.JWT.Algorithm)
 	}
 	publicKeyRaw, err := base64.StdEncoding.DecodeString(cfg.JWT.PublicKey)
 	if err != nil {

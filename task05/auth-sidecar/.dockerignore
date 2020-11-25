@@ -3,5 +3,4 @@
 .dockerignore
 Dockerfile
 docker-compose.yaml
-migrations
 helm

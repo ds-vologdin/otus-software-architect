@@ -28,20 +28,17 @@ func (srv *server) getProfile(w http.ResponseWriter, r *http.Request) {
 	id, err := users.UserIDFromString(vars["id"])
 	if err != nil {
 		log.Printf("invalid id: %v", err)
-		w.WriteHeader(http.StatusNotFound)
-		w.Write(MsgInvalidUserID)
+		http.Error(w, "invalid user id", http.StatusNotFound)
 		return
 	}
 
 	user, err := srv.UserService.Get(users.UserID(id))
 	if err != nil {
 		log.Printf("get user error: %v", err)
-		w.WriteHeader(http.StatusNotFound)
-
 		if errors.Is(err, users.UserNotFound) {
-			w.Write(MsgUserNotFound)
+			http.Error(w, "user is not found", http.StatusNotFound)
 		} else {
-			w.Write(MsgGetUserError)
+			http.Error(w, "internal error", http.StatusInternalServerError)
 		}
 		return
 	}
@@ -50,8 +47,8 @@ func (srv *server) getProfile(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	err = encoder.Encode(user)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(MsgInternalError)
+		log.Printf("encode json: %v", err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 }
@@ -102,19 +99,16 @@ func (srv *server) deleteUser(w http.ResponseWriter, r *http.Request) {
 	id, err := users.UserIDFromString(vars["id"])
 	if err != nil {
 		log.Printf("invalid id: %v", err)
-		w.WriteHeader(http.StatusNotFound)
-		w.Write(MsgInvalidUserID)
+		http.Error(w, "invalid user id", http.StatusNotFound)
 		return
 	}
 	err = srv.UserService.Delete(id)
 	if err != nil {
 		log.Printf("delete user error: %v", err)
 		if errors.Is(err, users.UserNotFound) {
-			w.WriteHeader(http.StatusNotFound)
-			w.Write(MsgUserNotFound)
+			http.Error(w, "not found user", http.StatusNotFound)
 		} else {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write(MsgDeleteUserError)
+			http.Error(w, "internal error", http.StatusInternalServerError)
 		}
 		return
 	}
@@ -211,7 +205,7 @@ func (srv *server) updateProfile(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("update user error: %v", err)
 		if errors.Is(err, users.UserNotFound) {
-			http.Error(w, "user not found", http.StatusNotFound)
+			http.Error(w, "not found user", http.StatusNotFound)
 		} else {
 			http.Error(w, "internal error", http.StatusInternalServerError)
 		}

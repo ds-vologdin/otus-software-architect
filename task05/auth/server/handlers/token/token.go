@@ -61,7 +61,6 @@ func (s *server) createRefreshToken(w http.ResponseWriter, r *http.Request) {
 		authorizeError(w)
 		return
 	}
-	log.Printf("cred: %v", cred)
 
 	userID, err := s.AccountProvider.CheckPassword(cred.Username, cred.Password)
 	if err != nil {
@@ -73,7 +72,6 @@ func (s *server) createRefreshToken(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "check password error", http.StatusInternalServerError)
 		return
 	}
-	log.Printf("user id: %v", userID)
 
 	refreshToken, err := createToken(s.PrivateKey, userID.String(), TokenTypeRefresh, TokenTypeRefreshTTL)
 	if err != nil {
@@ -81,7 +79,6 @@ func (s *server) createRefreshToken(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	log.Printf("refreshToken: %v", refreshToken)
 
 	accessToken, err := createToken(s.PrivateKey, userID.String(), TokenTypeAccess, TokenTypeAccessTTL)
 	if err != nil {
@@ -89,7 +86,6 @@ func (s *server) createRefreshToken(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	log.Printf("accessToken: %v", accessToken)
 
 	tokens := RefreshToken{refreshToken, accessToken}
 	w.WriteHeader(http.StatusCreated)
@@ -107,8 +103,8 @@ func (s *server) createAccessToken(w http.ResponseWriter, r *http.Request) {
 	if refreshTokens == nil {
 		log.Print("request without Authorization header field")
 		w.Header().Set("WWW-Authenticate:", "Bearer")
-		w.WriteHeader(http.StatusUnauthorized)
-		w.Write(MsgRefreshTokenEmpty)
+		http.Error(w, "refresh token is empty", http.StatusUnauthorized)
+		return
 	}
 
 	refreshTokenString := refreshTokens[0]
@@ -119,20 +115,19 @@ func (s *server) createAccessToken(w http.ResponseWriter, r *http.Request) {
 	refreshToken, err := parseToken(s.PublicKey, refreshTokenString)
 	if err != nil {
 		log.Printf("invalid refresh token: %v", err)
-		w.WriteHeader(http.StatusForbidden)
-		w.Write(MsgInvalidRefreshToken)
+		http.Error(w, "invalid refresh token", http.StatusForbidden)
+		return
 	}
 	if err = checkParsedRefreshToken(refreshToken); err != nil {
 		log.Printf("invalid refresh token: %v", err)
-		w.WriteHeader(http.StatusForbidden)
-		w.Write(MsgInvalidRefreshToken)
+		http.Error(w, "invalid refresh token", http.StatusForbidden)
+		return
 	}
 
 	accessToken, err := newAccessToken(s.PrivateKey, refreshToken)
 	if err != nil {
 		log.Printf("create access token error: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(MsgInternalError)
+		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 
@@ -141,8 +136,7 @@ func (s *server) createAccessToken(w http.ResponseWriter, r *http.Request) {
 	err = encoder.Encode(struct{ AccessToken string }{accessToken})
 	if err != nil {
 		log.Printf("encode to json error: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(MsgInternalError)
+		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 }

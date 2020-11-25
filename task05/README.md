@@ -125,3 +125,26 @@ accounts auth
 
 ```
 
+# Description
+
+## Accounts service
+
+Service provides work with profile and checks the password of user.
+
+## Auth-sidecar
+
+Proxy server checks JWT access token in the Authorization HTTP header. The server refuses requests if the token is invalid, else adds X-User-Id header with id from JWT token and sends the request to Target.
+We can configure Target in a config file.
+
+## Auth service
+
+Service creates JWT tokens.
+
+### Refresh token
+
+Refresh token provides create a new access token. The request must have an Authorization HTTP header with an actual refresh token.
+
+### Access token
+
+Access tokens provide access to other services.
+

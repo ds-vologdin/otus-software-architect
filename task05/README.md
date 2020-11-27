@@ -146,7 +146,7 @@ We can configure Target in a config file.
 
 Service serves requests from users for creating JWT tokens.
 
-Users have two type of tokens: access and refresh.
+Users should request refresh and access tokens in the Auth service before beginning work.
 
 ### Refresh token
 
@@ -160,6 +160,7 @@ Auth-sidecar checks access tokens before sending requests to a service.
 Users can request a new access token if they have an actual refresh token.
 The request must have an Authorization HTTP header with a refresh token.
 
+If the user gets from auth-sidecar request with code 403 Forbidden, then he must request a new access token in the Auth service.
 ## Create refresh and access tokens
 
 ![Create refresh and access tokens](https://github.com/ds-vologdin/otus-software-architect/blob/main/task05/img/create%20tokens.jpg)

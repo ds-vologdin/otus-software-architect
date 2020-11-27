@@ -129,7 +129,7 @@ accounts auth
 
 ## Accounts service
 
-Service provides work with profile. Also, the service checks the password of the user.
+Service provides work with profiles of users. Also, the service checks the password of the user.
 
 The user gets access to the profile if the X-User-Id header matches with the ID in the URL of the request. Auth-sidecar should set X-User-Id from JWT access token.
 

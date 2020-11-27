@@ -151,7 +151,7 @@ Users have two type of tokens: access and refresh.
 ### Refresh token
 
 Refresh token provides create a new access token.
-Them have a long lifetime, unlike access tokens.
+It has a long lifetime, unlike access tokens.
 ### Access token
 
 Access tokens provide access to services.

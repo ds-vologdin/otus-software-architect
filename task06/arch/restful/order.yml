@@ -1,0 +1,71 @@
+openapi: '3.0.2'
+info:
+  title: API of an order service
+  version: '1.0'
+servers:
+  - url: https://arch.homework/
+paths:
+  /order:
+    post:
+      summary: Create order
+      parameters:
+        - in: header
+          description: Auth-sidecar sets field X-User-Id from JWT-token.
+          name: X-User-Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 5567
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_ids:
+                  type: array
+                  items:
+                    type: integer
+                  example: [234, 5467]
+                description:
+                  type: string
+                  example: I want fresh pickled cucumber
+                amount:
+                  type: integer
+                  format: int64
+                  example: 56
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order_id:
+                    type: integer
+                    format: int64
+                    example: 89932
+        '403':
+          description: Access denied
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: access denied
+        '409':
+          description: Order declined
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: insufficient funds
+        '500':
+          description: Internal error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: request failed

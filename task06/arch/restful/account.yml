@@ -1,0 +1,71 @@
+openapi: '3.0.2'
+info:
+  title: API of an account service
+  version: '1.0'
+servers:
+  - url: https://arch.homework/
+paths:
+  /profile/{userId}:
+    get:
+      parameters:
+        - in: header
+          description: Auth-sidecar sets field X-User-Id from JWT-token.
+          name: X-User-Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 5567
+      responses:
+        '200':
+          description: Return a profile of an user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '403':
+          description: Access denied
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: access denied
+        '404':
+          description: User not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: user not found
+        '500':
+          description: Internal error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: request failed
+
+components:
+  schemas:
+    Profile:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 642
+        username:
+          type: string
+          example: bob
+        firstName:
+          type: string
+          example: bob
+        lastName:
+          type: string
+          example: brown
+        email:
+          type: string
+          example: bob@email.com
+        phone:
+          type: string
+          example: +79330003322

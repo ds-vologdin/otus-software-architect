@@ -1,0 +1,84 @@
+openapi: '3.0.2'
+info:
+  title: API of a billing service
+  version: '1.0'
+servers:
+  - url: https://arch.homework/
+paths:
+  /bill/{userId}/expense:
+    post:
+      summary: Expense a money from an user bill
+      parameters:
+        - name: userId
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 5567
+        - in: header
+          description: Auth-sidecar sets field X-User-Id from JWT-token.
+          name: X-User-Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 5567
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: integer
+                  minimum: 0
+                  format: int64
+                  example: 34
+                order_id:
+                  type: integer
+                  format: int64
+                  example: 5963
+      responses:
+        '201':
+          description: Expensed a money
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction:
+                    type: integer
+                    minimum: 1
+                    format: int64
+                    example: 877732
+        '403':
+          description: Access denied
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: access denied
+        '404':
+          description: User not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: user not found
+        '409':
+          description: Operation declined
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: insufficient funds
+        '500':
+          description: Internal error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: request failed

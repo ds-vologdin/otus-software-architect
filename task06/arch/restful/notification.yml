@@ -1,0 +1,58 @@
+openapi: '3.0.2'
+info:
+  title: API of a notification service
+  version: '1.0'
+servers:
+  - url: https://arch.homework/
+paths:
+  /notify/{userId}:
+    post:
+      summary: Send a notification to the user
+      parameters:
+        - name: userId
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 5567
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: |
+                    Your order 53445 is confirmed.
+                    Thank you.
+      responses:
+        '200':
+          description: Notification is send to the user.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notification_id:
+                    type: integer
+                    minimum: 0
+                    format: int64
+                    example: 65743
+        '404':
+          description: User not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: user not found
+        '500':
+          description: Internal error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: request failed

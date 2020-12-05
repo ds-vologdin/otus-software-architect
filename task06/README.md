@@ -14,12 +14,24 @@ Below we will describe the communication and IDL schemes for different architect
 ## Communication scheme
 ![restful](https://github.com/ds-vologdin/otus-software-architect/blob/main/task06/images/restful.jpg)
 
-## Notes
+### Notes
 
 Notification service should use a cache to reduce the count of requests to Account service.
 
-### Event Notifications
+# Event Notifications
 
+## IDL schemes
+
+- [Order service](https://github.com/ds-vologdin/otus-software-architect/blob/main/task06/arch/event%20notification/order.yml)
+- [Billing service](hhttps://github.com/ds-vologdin/otus-software-architect/blob/main/task06/arch/event%20notification/billing.yml)
+- [Notification service](https://github.com/ds-vologdin/otus-software-architect/blob/main/task06/arch/event%20notification/notification.yml)
+- [Account service](https://github.com/ds-vologdin/otus-software-architect/blob/main/task06/arch/event%20notification/account.yml)
+
+### Notes
+
+Notification service should use a cache to reduce the count of requests to Account service.
+
+## Communication scheme
 ![event notification](https://github.com/ds-vologdin/otus-software-architect/blob/main/task06/images/event_notification.jpg)
 
 ## Event Collaboration

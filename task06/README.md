@@ -18,7 +18,7 @@ Below we will describe the communication and IDL schemes for different architect
 
 Notification service should use a cache to reduce the count of requests to Account service.
 
-## Event Notifications
+### Event Notifications
 
 ![event notification](https://github.com/ds-vologdin/otus-software-architect/blob/main/task06/images/event_notification.jpg)
 

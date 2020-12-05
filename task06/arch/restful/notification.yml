@@ -29,6 +29,8 @@ paths:
                   example: |
                     Your order 53445 is confirmed.
                     Thank you.
+              required:
+                - message
       responses:
         '202':
           description: Notification will send to the user.

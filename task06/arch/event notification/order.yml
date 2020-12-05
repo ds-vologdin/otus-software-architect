@@ -36,9 +36,6 @@ paths:
                   type: integer
                   format: int64
                   example: 56
-              required:
-              - product_ids
-              - amount
       responses:
         '201':
           description: Order created

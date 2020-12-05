@@ -1,0 +1,33 @@
+asyncapi: 2.0.0
+info:
+  title: Notification service
+  version: '1.0.0'
+defaultContentType: application/json
+
+channels:
+  CreateOrder:
+    publish:
+      message:
+        payload:
+          type: object
+          properties:
+            order_id:
+              type: integer
+              format: int64
+            order_status:
+              type: string
+              enum:
+              - confirmed
+              - declined
+            user_id:
+              type: integer
+              format: int64
+          required:
+          - order_id
+          - order_status
+          - user_id
+        examples:
+          message: |
+            Your order 53445 is confirmed.
+            Thank you.
+          user_id: 5567

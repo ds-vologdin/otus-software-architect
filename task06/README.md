@@ -23,7 +23,7 @@ Notification service should use a cache to reduce the count of requests to Accou
 ## IDL schemes
 
 - [Order service](https://github.com/ds-vologdin/otus-software-architect/blob/main/task06/arch/event%20notification/order.yml)
-- [Billing service](hhttps://github.com/ds-vologdin/otus-software-architect/blob/main/task06/arch/event%20notification/billing.yml)
+- [Billing service](https://github.com/ds-vologdin/otus-software-architect/blob/main/task06/arch/event%20notification/billing.yml)
 - [Notification service](https://github.com/ds-vologdin/otus-software-architect/blob/main/task06/arch/event%20notification/notification.yml)
 - [Account service](https://github.com/ds-vologdin/otus-software-architect/blob/main/task06/arch/event%20notification/account.yml)
 

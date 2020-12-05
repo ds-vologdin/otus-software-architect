@@ -57,10 +57,10 @@ components:
         username:
           type: string
           example: bob
-        firstName:
+        first_name:
           type: string
           example: bob
-        lastName:
+        last_name:
           type: string
           example: brown
         email:

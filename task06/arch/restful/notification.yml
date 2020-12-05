@@ -30,8 +30,8 @@ paths:
                     Your order 53445 is confirmed.
                     Thank you.
       responses:
-        '200':
-          description: Notification is send to the user.
+        '202':
+          description: Notification will send to the user.
           content:
             application/json:
               schema:

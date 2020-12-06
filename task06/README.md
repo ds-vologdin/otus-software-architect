@@ -50,3 +50,10 @@ All communications are async through a message broker.
 ### Notes
 
 Notification service should have a view with contacts of users. For updates of this view, the service should listen to events CreateUser and UpdateUser. Here we don't consider these events.
+
+
+# Conclusions
+
+I think that the **Event notification** scheme is more suitable for solving this task.
+
+We really need async communications only for notification. Other communications are sync and simple.

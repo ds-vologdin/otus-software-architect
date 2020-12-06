@@ -27,7 +27,6 @@ channels:
           - order_status
           - user_id
         examples:
-          message: |
-            Your order 53445 is confirmed.
-            Thank you.
+          order_id: 6678
+          order_status: confirmed
           user_id: 5567

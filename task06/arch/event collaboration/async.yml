@@ -1,0 +1,153 @@
+asyncapi: 2.0.0
+info:
+  title: Notification service
+  version: '1.0.0'
+defaultContentType: application/json
+
+channels:
+  order/RequestedOrder:
+    publish:
+      message:
+        name: User requests creating order
+        payload:
+          type: object
+          properties:
+            product_ids:
+              type: array
+              items: integer
+            user_id:
+              type: integer
+              format: int64
+            amount:
+              type: integer
+              format: int64
+          required:
+          - product_ids
+          - user_id
+          - amount
+        examples:
+          product_ids: [234, 563]
+          user_id: 5567
+          amount: 87
+
+  order/CreatedOrder:
+    publish:
+      message:
+        name: Order created in order service
+        payload:
+          type: object
+          properties:
+            product_ids:
+              type: array
+              items: integer
+            user_id:
+              type: integer
+              format: int64
+            amount:
+              type: integer
+              format: int64
+            order_id:
+              type: integer
+              format: int64
+          required:
+          - product_ids
+          - user_id
+          - amount
+          - order_id
+        examples:
+          product_ids: [234, 563]
+          user_id: 5567
+          amount: 87
+          order_id: 6678
+
+  order/PaidOrder:
+    publish:
+      message:
+        name: Spent money on the user bill
+        payload:
+          type: object
+          properties:
+            product_ids:
+              type: array
+              items: integer
+            user_id:
+              type: integer
+              format: int64
+            amount:
+              type: integer
+              format: int64
+            order_id:
+              type: integer
+              format: int64
+            transaction:
+              type: integer
+              format: int64
+            transaction_status:
+              type: string
+              enum:
+              - confirmed
+              - declined
+            balance:
+              type: integer
+              enum: int64
+            description:
+              type: string
+          required:
+          - product_ids
+          - user_id
+          - amount
+          - order_id
+          - transaction_status
+          - balance
+        examples:
+          product_ids: [234, 563]
+          user_id: 5567
+          amount: 87
+          order_id: 6678
+          transaction: 774423
+          transaction_status: confirmed
+          balance: 354
+          description: confirmed transaction
+
+  order/ConfirmedOrder:
+    publish:
+      message:
+        payload:
+          type: object
+          properties:
+            product_ids:
+              type: array
+              items: integer
+            user_id:
+              type: integer
+              format: int64
+            amount:
+              type: integer
+              format: int64
+            order_id:
+              type: integer
+              format: int64
+            transaction:
+              type: integer
+              format: int64
+            balance:
+              type: integer
+              enum: int64
+            description:
+              type: string
+          required:
+          - product_ids
+          - user_id
+          - amount
+          - order_id
+          - transaction
+          - balance
+          - description
+        examples:
+          product_ids: [234, 563]
+          user_id: 5567
+          amount: 87
+          order_id: 6678
+          transaction: 774423
+          balance: 354
+          description: confirmed order

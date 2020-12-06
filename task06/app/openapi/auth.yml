@@ -1,0 +1,80 @@
+openapi: '3.0.2'
+info:
+  title: Auth service
+  version: '1.0'
+servers:
+  - url: https://arch.homework/
+paths:
+  /token/refresh:
+    post:
+      description: Create new refresh token
+      security:
+        - basicAuth: []
+      responses:
+        '201':
+          description: Created refresh and access tokens
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  RefreshToken:
+                    type: string
+                  AccessToken:
+                    type: string
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /token/access:
+    post:
+      description: Create new access token
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Created access token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  AccessToken:
+                    type: string
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    UnauthorizedError:
+      description: Authentication information is missing or invalid
+      headers:
+        WWW_Authenticate:
+          schema:
+            type: string
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: authorization failed
+    InternalError:
+      description: Internal error
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: request failed
+
+security:
+  - basicAuth: []
+  - bearerAuth: []

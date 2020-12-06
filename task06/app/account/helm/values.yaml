@@ -1,0 +1,108 @@
+# Default values for app.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 2
+
+image:
+  repository: dsvologdin/accounts
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "0.0.14"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 2000
+
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 8000
+
+ingress:
+  enabled: true
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  host: arch.homework
+  path: /accounts(/|$)(.*)
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 32Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+
+# WARNING: You need to change this section. Don't use default values!
+postgresql:
+  enableDependency: true
+  host: accounts-postgresql
+  postgresqlDatabase: accounts
+  postgresqlUsername: tom
+  postgresqlPassword: tom
+  service:
+    port: 5432
+  options: "sslmode=disable"
+
+migrations:
+  image:
+    repository: dsvologdin/migrate-account
+    tag: "0.0.4"
+    pullPolicy: IfNotPresent
+
+authSidecar:
+  image:
+    repository: dsvologdin/auth-sidecar
+    pullPolicy: IfNotPresent
+    tag: "0.0.3"
+  server:
+    port: 8002
+  jwt:
+    algorithm: RS256
+    publicKey: MIIBCgKCAQEA3yPP0lVEdMzLLYY8X9dFVlELKu8gHPwK1dOHRNMmzGl3cQTwrgnTy9Bw43RRPsAym7LWTrIbyos85OzJJa1FcmZYHlC88CSon+R1xmzpKlJSOrEc+oGCQ5iMX3Q8GMuUkO21x8ywfoMkNmm/ZwWvYZ+YE8hQQwOA9mJ2jQfamqnhQm5TWU66h62ESIv652ILrghmUkh8k62lWiSHykJVpqDCYr0AbsdeqRqdIDzjK9QNdI065nXFCrvEV17eDi40YwUG1VFd+ATO8HwHow5TkOd6PDJRi5H3hErjkMDN2OUoCBZsQ6FAMdoOf816GgkKwkLhAqwYnXwenYzDjdAblwIDAQAB
+
+
+metrics:
+  serviceMonitor:
+    enabled: true
+    interval: 15s

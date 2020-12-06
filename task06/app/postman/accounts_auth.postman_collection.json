@@ -1,0 +1,707 @@
+{
+	"info": {
+		"_postman_id": "3bb1db4e-d241-4aba-bcb2-3f13784e3578",
+		"name": "accounts auth",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "register tom",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "cd75357f-73ba-48a5-9a7d-bc723bc55005",
+						"exec": [
+							"var responseJSON = JSON.parse(responseBody);",
+							"pm.collectionVariables.set(\"userIdTom\", responseJSON[\"ID\"]);",
+							"",
+							"pm.test(\"status test\", function() {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"Username\": \"tom2002\", \"Password\": \"qwerty\", \"FirstName\": \"tom\", \"LastName\": \"ivanov\", \"Email\": \"11@ivanov.com\", \"Phone\": \"+79993338813\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{baseUrl}}/accounts/profile/",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"accounts",
+						"profile",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "register: user already exists",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "fef3a982-2af9-4c90-94f5-e7e7d92ba014",
+						"exec": [
+							"pm.test(\"status test\", function() {",
+							"    pm.response.to.have.status(409);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"Username\": \"tom2001\", \"Password\": \"qwerty\", \"FirstName\": \"tom\", \"LastName\": \"ivanov\", \"Email\": \"11@ivanov.com\", \"Phone\": \"+79993338813\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{baseUrl}}/accounts/profile/",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"accounts",
+						"profile",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Unathorized get profile",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "977bd04d-dfb6-46bc-9e0b-4a27b41bb5d1",
+						"exec": [
+							"pm.test(\"status test\", function() {",
+							"    pm.response.to.have.status(401);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{baseUrl}}/accounts/profile/{{userId}}",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"accounts",
+						"profile",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Unathorized change profile",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8f8d37dd-bcd7-4eb5-9302-9d7b9978820d",
+						"exec": [
+							"pm.test(\"status test\", function() {",
+							"    pm.response.to.have.status(401);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"Phone\": \"none\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{baseUrl}}/accounts/profile/{{userId}}",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"accounts",
+						"profile",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login tom",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ee932ea2-5875-416a-bfeb-916a533d3156",
+						"exec": [
+							"var responseJSON = JSON.parse(responseBody);",
+							"pm.collectionVariables.set(\"AccessTokenTom\", responseJSON[\"AccessToken\"]);",
+							"pm.collectionVariables.set(\"RefreshTokenTom\", responseJSON[\"RefreshToken\"]);",
+							"",
+							"pm.test(\"status test\", function() {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic tom2002:qwerty",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://{{baseUrl}}/auth/token/refresh",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"auth",
+						"token",
+						"refresh"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get profile tom",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f7b16c87-c811-48dd-84a1-3eaabc26d32d",
+						"exec": [
+							"pm.test(\"status test\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"body test\", function() {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson.Username).to.eql(\"tom2002\");",
+							"    pm.expect(responseJson.FirstName).to.eql(\"tom\");",
+							"    pm.expect(responseJson.LastName).to.eql(\"ivanov\");",
+							"    pm.expect(responseJson.Email).to.eql(\"11@ivanov.com\");",
+							"    pm.expect(responseJson.Phone).to.eql(\"+79993338813\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{AccessTokenTom}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://{{baseUrl}}/accounts/profile/{{userIdTom}}",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"accounts",
+						"profile",
+						"{{userIdTom}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "edit profile tom",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4fb1e437-1624-4c91-9c32-f3c7a1d99a7e",
+						"exec": [
+							"pm.test(\"status test\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{AccessTokenTom}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"Email\": \"new@email.com\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{baseUrl}}/accounts/profile/{{userIdTom}}",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"accounts",
+						"profile",
+						"{{userIdTom}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "check edited profile tom",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "64675bff-bcb3-45b5-ab1e-1be94b7d948a",
+						"exec": [
+							"pm.test(\"status test\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"body test\", function() {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson.Username).to.eql(\"tom2002\");",
+							"    pm.expect(responseJson.FirstName).to.eql(\"tom\");",
+							"    pm.expect(responseJson.LastName).to.eql(\"ivanov\");",
+							"    pm.expect(responseJson.Email).to.eql(\"new@email.com\");",
+							"    pm.expect(responseJson.Phone).to.eql(\"+79993338813\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{AccessTokenTom}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{baseUrl}}/accounts/profile/{{userIdTom}}",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"accounts",
+						"profile",
+						"{{userIdTom}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "register user bob",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "590918c0-3711-4578-8387-20103afeeeec",
+						"exec": [
+							"var responseJSON = JSON.parse(responseBody);",
+							"pm.collectionVariables.set(\"userIdBob\", responseJSON[\"ID\"]);",
+							"",
+							"pm.test(\"status test\", function() {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"Username\": \"bob2002\", \"Password\": \"qwerty\", \"FirstName\": \"bob\", \"LastName\": \"ivanov\", \"Email\": \"bob@ivanov.com\",\"Phone\": \"+79993338002\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{baseUrl}}/accounts/profile/",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"accounts",
+						"profile",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login bob",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "68e38618-1296-45bd-96ec-7ed8cc763745",
+						"exec": [
+							"var responseJSON = JSON.parse(responseBody);",
+							"pm.collectionVariables.set(\"AccessTokenBob\", responseJSON[\"AccessToken\"]);",
+							"pm.collectionVariables.set(\"RefreshTokenBob\", responseJSON[\"RefreshToken\"]);",
+							"",
+							"pm.test(\"status test\", function() {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Basic bob2002:qwerty"
+					}
+				],
+				"url": {
+					"raw": "http://{{baseUrl}}/auth/token/refresh",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"auth",
+						"token",
+						"refresh"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get alien profile",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e4b5d6d9-3215-4a4e-b0dd-049db15082d2",
+						"exec": [
+							"pm.test(\"status test\", function() {",
+							"    pm.response.to.have.status(403);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{AccessTokenBob}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{AccessToken}}"
+					}
+				],
+				"url": {
+					"raw": "http://{{baseUrl}}/accounts/profile/{{userIdTom}}",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"accounts",
+						"profile",
+						"{{userIdTom}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete profile tom",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c8263adf-670c-4abb-9e1b-df7bafd0a115",
+						"exec": [
+							"pm.test(\"status test\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{AccessTokenTom}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://{{baseUrl}}/accounts/profile/{{userIdTom}}",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"accounts",
+						"profile",
+						"{{userIdTom}}"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete profile bob",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "feeec4b5-a5dd-455e-a423-0c9d182b2dcc",
+						"exec": [
+							"pm.test(\"status test\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{AccessTokenBob}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://{{baseUrl}}/accounts/profile/{{userIdBob}}",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"accounts",
+						"profile",
+						"{{userIdBob}}"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "5e222130-c2e7-4fde-8799-cc10b78303da",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "b0c5f89a-6ee2-40e8-9549-6ceb7db83f4c",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "f550fe1e-8597-4249-9412-40f53dda536e",
+			"key": "baseUrl",
+			"value": "arch.homework"
+		},
+		{
+			"id": "d0843bb4-c489-4cde-b320-3525de5c6c4a",
+			"key": "userIdTom",
+			"value": ""
+		},
+		{
+			"id": "96bff5d2-095e-42ed-bebf-b5326c806683",
+			"key": "AccessTokenTom",
+			"value": ""
+		},
+		{
+			"id": "6f2844b4-213c-41b3-a218-0dab9d7a7eb5",
+			"key": "RefreshTokenTom",
+			"value": ""
+		},
+		{
+			"id": "5e6bceb6-cdbb-44f3-8dcf-4889e67b8791",
+			"key": "AccessTokenBob",
+			"value": ""
+		},
+		{
+			"id": "c1f50cd1-60f6-4e84-a187-7300cbd37634",
+			"key": "RefreshTokenBob",
+			"value": ""
+		},
+		{
+			"id": "873b688a-7372-4564-9add-3aade7e2ba09",
+			"key": "userIdBob",
+			"value": ""
+		}
+	],
+	"protocolProfileBehavior": {}
+}

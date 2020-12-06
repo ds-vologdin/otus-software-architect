@@ -1,0 +1,60 @@
+version: "3.8"
+services:
+  account:
+    build:
+      context: ./account
+    command: ["-config", "/app/app-test.yaml"]
+    depends_on:
+      - db
+      - account-migrations
+    ports:
+      - 8000:8000
+    volumes:
+      - ./account/:/app/
+
+  auth-sidecar:
+    build:
+      context: ./auth-sidecar
+    command: ["-config", "/app/app-test.yaml"]
+    depends_on:
+      - account
+    ports:
+      - 8002:8002
+    volumes:
+      - ./auth-sidecar/:/app/
+
+  auth:
+    build:
+      context: ./auth
+    command: ["-config", "/app/app-test.yaml"]
+    depends_on:
+      - account
+    ports:
+      - 8001:8001
+    volumes:
+      - ./auth/:/app/
+
+  account-migrations:
+    build:
+      context: ./account/migrations
+    command: [
+      "db:5432", "--",
+      "migrate", "-path", "/migrations/",
+      "-database", "postgres://tom:tom@db:5432/tom?sslmode=disable", "up"
+    ]
+    depends_on:
+      - db
+
+  db:
+    image: postgres:12.4-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=tom
+      - POSTGRES_PASSWORD=tom
+      - POSTGRES_DB=tom
+    ports:
+      - 5432:5432
+
+volumes:
+  postgres_data:

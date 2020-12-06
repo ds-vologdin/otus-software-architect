@@ -1,0 +1,5 @@
+server:
+  port: 8000
+
+database:
+  dsn: "postgres://tom:tom@127.0.0.1:5432/tom?sslmode=disable"

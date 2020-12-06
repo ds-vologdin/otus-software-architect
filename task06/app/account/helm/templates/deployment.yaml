@@ -1,0 +1,98 @@
+{{- $fullName := include "app.fullname" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "app.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "app.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "app.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ $fullName }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["-config", "/config/account-config.yaml"]
+          ports:
+            - name: {{ $fullName }}
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          volumeMounts:
+          - mountPath: /config/
+            name: {{ $fullName }}-config
+            readOnly: true
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.service.port }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.service.port }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+        - name: auth-sidecar
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.authSidecar.image.repository }}:{{ .Values.authSidecar.image.tag }}"
+          imagePullPolicy: {{ .Values.authSidecar.image.pullPolicy }}
+          args: ["-config", "/config/auth-sidecar-config.yaml"]
+          ports:
+            - name: auth-sidecar
+              containerPort: {{ .Values.authSidecar.server.port }}
+              protocol: TCP
+          volumeMounts:
+          - mountPath: /config/
+            name: auth-sidecar-config
+            readOnly: true
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.authSidecar.server.port }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.authSidecar.server.port }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+      - name: {{ $fullName }}-config
+        secret:
+          secretName: {{ $fullName }}-config
+      - name: auth-sidecar-config
+        secret:
+          secretName: auth-sidecar-config
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

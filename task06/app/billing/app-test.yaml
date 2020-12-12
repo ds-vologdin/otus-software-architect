@@ -1,0 +1,5 @@
+server:
+  port: 8020
+
+database:
+  dsn: "postgres://tom:tom@db:5432/billing?sslmode=disable"

@@ -1,0 +1,302 @@
+openapi: '3.0.2'
+info:
+  title: Billing service
+  version: '1.0'
+servers:
+  - url: https://arch.homework/
+paths:
+  /bill/{userId}:
+    post:
+      summary: Create a bill for an user. The balance of the user will be 0.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: false
+
+      responses:
+        '201':
+          description: Created a user.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      summary: Delete a bill of an user.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '201':
+          description: Created a user.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ID:
+                    type: integer
+                    format: int64
+                    example: 642
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/UserNotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /bill/{userId}/balance:
+    get:
+      summary: Get a balance of an user.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '201':
+          description: Created a user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Balance'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/UserNotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /bill/{userId}/expense:
+    post:
+      summary: Expense a money from an user bill
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: integer
+                  minimum: 0
+                  format: int64
+                  example: 34
+                order_id:
+                  type: integer
+                  format: int64
+                  example: 5963
+              required:
+              - amount
+              - order_id
+      responses:
+        '201':
+          description: Expensed a money
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  balance:
+                    $ref: '#/components/schemas/Balance'
+                  transaction:
+                    $ref: '#/components/schemas/Transaction'
+                required:
+                - balance
+                - transaction
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/UserNotFound'
+        '406':
+          description: Insufficient funds
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  balance:
+                    $ref: '#/components/schemas/Balance'
+                  transaction:
+                    $ref: '#/components/schemas/Transaction'
+                example:
+                  balance:
+                    user_id: 642
+                    amount: 10
+                  transaction:
+                    id: 893
+                    user_id: 642
+                    order_id: 5964
+                    created: 1607786754
+                    type: expense
+                    amount: 1000
+                    status: declined
+                required:
+                - balance
+                - transaction
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /bill/{userId}/top_up:
+    post:
+      summary: Expense a money from an user bill
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: integer
+                  minimum: 0
+                  format: int64
+                  example: 34
+              required:
+              - amount
+      responses:
+        '201':
+          description: Expensed a money
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  balance:
+                    $ref: '#/components/schemas/Balance'
+                  transaction:
+                    $ref: '#/components/schemas/Transaction'
+                required:
+                - balance
+                - transaction
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/UserNotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    UserId:
+      name: userId
+      in: path
+      description: User ID
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 642
+
+  schemas:
+    Balance:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 642
+        amount:
+          type: integer
+          example: 1000
+      required:
+        - user_id
+        - amount
+
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 892
+        user_id:
+          type: integer
+          example: 642
+        order_id:
+          type: integer
+          example: 5963
+        created:
+          type: integer
+          description: unix time
+          example: 1607786754
+        type:
+          type: string
+          enum:
+          - expense
+          - top_up
+        amount:
+          type: integer
+          example: 1000
+        status:
+          type: string
+          enum:
+          - accepted
+          - declined
+          example: accepted
+      required:
+      - id
+      - user_id
+      - order_id
+      - created
+      - type
+      - amount
+      - status
+
+  responses:
+    UnauthorizedError:
+      description: Authentication information is missing or invalid
+      headers:
+        WWW_Authenticate:
+          schema:
+            type: string
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: authorization failed
+    Forbidden:
+      description: Access forbidden
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: authorization failed
+    UserNotFound:
+      description: User not found
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: user not found
+    InternalError:
+      description: Internal error
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: request failed

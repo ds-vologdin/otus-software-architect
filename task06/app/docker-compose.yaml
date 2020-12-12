@@ -34,13 +34,49 @@ services:
     volumes:
       - ./auth/:/app/
 
+  billing:
+    build:
+      context: ./billing
+    command: [ "-config", "/app/app-test.yaml" ]
+    depends_on:
+      - billing-migrations
+      - db
+    ports:
+      - 8020:8020
+    volumes:
+      - ./billing/:/app/
+
   account-migrations:
     build:
       context: ./account/migrations
     command: [
       "db:5432", "--",
       "migrate", "-path", "/migrations/",
-      "-database", "postgres://tom:tom@db:5432/tom?sslmode=disable", "up"
+      "-database", "postgres://tom:tom@db:5432/account?sslmode=disable", "up"
+    ]
+    depends_on:
+      - db
+      - init-db
+
+  billing-migrations:
+    build:
+      context: ./billing/migrations
+    command: [
+        "db:5432", "--",
+        "migrate", "-path", "/migrations/",
+        "-database", "postgres://tom:tom@db:5432/billing?sslmode=disable", "up"
+    ]
+    depends_on:
+      - db
+      - init-db
+
+  init-db:
+    build:
+      context: ./init_db
+    command: [
+      "db:5432", "--",
+      "psql", "postgres://tom:tom@db:5432/tom?sslmode=disable",
+      "-f", "/sql/init_db.sql",
     ]
     depends_on:
       - db

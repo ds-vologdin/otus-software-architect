@@ -1,6 +1,6 @@
 CREATE TABLE balance (
     user_id INTEGER PRIMARY KEY,
-    amount INTEGER CHECK (amount > 0)
+    amount INTEGER CHECK (amount >= 0)
 );
 
 CREATE TABLE transaction (

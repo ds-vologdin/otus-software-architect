@@ -42,7 +42,7 @@ func NewServer(cfg config.Config, billService bill.BillService) (*Server, error)
 	r.HandleFunc("/healthz", health)
 	r.Handle("/metrics", promhttp.Handler())
 
-	err := RegisterSubrouterBillig(r, "/bill", billService)
+	err := RegisterSubrouterBilling(r, "/bill", billService)
 	if err != nil {
 		log.Printf("register token router: %v", err)
 		return nil, err

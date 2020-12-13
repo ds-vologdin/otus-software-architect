@@ -64,7 +64,7 @@ func (svc *service) Create(id UserID) error {
 
 	var exists bool
 	err = tx.Get(&exists, `
-		SELECT EXISTS(SELECT 1 FROM balance WHERE id=$1);`,
+		SELECT EXISTS(SELECT 1 FROM balance WHERE user_id=$1);`,
 		id,
 	)
 	if exists {
@@ -75,7 +75,7 @@ func (svc *service) Create(id UserID) error {
 	err = tx.Get(&id, `
 		INSERT INTO balance (user_id, amount)
 		VALUES ($1, 0)
-		RETURNING id;`,
+		RETURNING user_id;`,
 		id,
 	)
 	if err != nil {
@@ -94,9 +94,11 @@ func (svc *service) Expense(transaction Transaction) (Balance, Transaction, erro
 	balance := Balance{UserID: transaction.UserID}
 
 	if transaction.Amount > 0 {
+		log.Printf("expense: amount > 0 (%d)", transaction.Amount)
 		return balance, transaction, fmt.Errorf("expense: amount > 0 (%d)", transaction.Amount)
 	}
 	if transaction.Type != Expense {
+		log.Printf("expense: type of transaction != %s (%s)", Expense, transaction.Type)
 		return balance, transaction, fmt.Errorf("expense: type of transaction != %s (%s)", Expense, transaction.Type)
 	}
 
@@ -125,9 +127,9 @@ func (svc *service) Expense(transaction Transaction) (Balance, Transaction, erro
 	var id TransactionID
 	err = tx.Get(&id, `
 		INSERT INTO transaction (user_id, order_id, time, type, amount, status)
-		VALUES ($1,$2,$3,$4,$5)
+		VALUES ($1,$2,$3,$4,$5,$6)
 		RETURNING id;`,
-		transaction.UserID, transaction.OrderID, transaction.Time, transaction.Amount, transaction.Status,
+		transaction.UserID, transaction.OrderID, transaction.Time, transaction.Type, transaction.Amount, transaction.Status,
 	)
 	if err != nil {
 		log.Printf("expense: %v", err)
@@ -158,9 +160,11 @@ func (svc *service) TopUp(transaction Transaction) (Balance, Transaction, error)
 	balance := Balance{UserID: transaction.UserID}
 
 	if transaction.Amount < 0 {
+		log.Printf("expense: amount < 0 (%d)", transaction.Amount)
 		return balance, transaction, fmt.Errorf("top up: amount < 0 (%d)", transaction.Amount)
 	}
 	if transaction.Type != TopUp {
+		log.Printf("top up: type of transaction != %s (%s)", TopUp, transaction.Type)
 		return balance, transaction, fmt.Errorf("top up: type of transaction != %s (%s)", TopUp, transaction.Type)
 	}
 
@@ -184,9 +188,9 @@ func (svc *service) TopUp(transaction Transaction) (Balance, Transaction, error)
 
 	err = tx.Get(&transaction.ID, `
 		INSERT INTO transaction (user_id, order_id, time, type, amount, status)
-		VALUES ($1,$2,$3,$4,$5)
+		VALUES ($1,$2,$3,$4,$5,$6)
 		RETURNING id;`,
-		transaction.UserID, transaction.OrderID, transaction.Time, transaction.Amount, transaction.Status,
+		transaction.UserID, transaction.OrderID, transaction.Time, transaction.Type, transaction.Amount, transaction.Status,
 	)
 	if err != nil {
 		log.Printf("top up: %v", err)

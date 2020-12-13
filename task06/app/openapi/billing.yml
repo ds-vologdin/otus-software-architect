@@ -22,6 +22,13 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '409':
+          description: User already exists
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: user already exists
         '500':
           $ref: '#/components/responses/InternalError'
 
@@ -32,23 +39,12 @@ paths:
       parameters:
         - $ref: '#/components/parameters/UserId'
       responses:
-        '201':
-          description: Created a user.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  ID:
-                    type: integer
-                    format: int64
-                    example: 642
+        '200':
+          description: Deleted a user.
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/UserNotFound'
         '500':
           $ref: '#/components/responses/InternalError'
 
@@ -116,6 +112,8 @@ paths:
                 required:
                 - balance
                 - transaction
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '403':
@@ -268,6 +266,12 @@ components:
       - status
 
   responses:
+    BadRequest:
+      description: Invalid request
+        headers:
+          WWW_Authenticate:
+            schema:
+              type: string
     UnauthorizedError:
       description: Authentication information is missing or invalid
       headers:
